@@ -2,6 +2,7 @@ import { useFormik } from "formik";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
+import { useAuth } from "../../zustand/useAuth";
 
 const schema = Yup.object({
   email: Yup.string()
@@ -17,9 +18,7 @@ const schema = Yup.object({
 });
 
 const AdminLogin = () => {
-  const login = (values) => {
-    console.log(values);
-  };
+  const { login } = useAuth();
   const formik = useFormik({
     initialValues: {
       email: "",

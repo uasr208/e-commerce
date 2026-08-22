@@ -1,0 +1,34 @@
+{
+	"name": "ecommerce-api",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"bcrypt": "^6.0.0",
+		"chalk": "latest",
+		"cors": "latest",
+		"dotenv": "latest",
+		"express": "latest",
+		"inquirer": "latest",
+		"jsonwebtoken": "^9.0.2",
+		"mongoose": "latest",
+		"morgan": "latest"
+	},
+	"devDependencies": {
+		"@types/bcrypt": "^6.0.0",
+		"@types/cors": "latest",
+		"@types/express": "latest",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/morgan": "latest",
+		"@types/node": "latest",
+		"ts-node-dev": "latest",
+		"typescript": "latest"
+	}
+}
