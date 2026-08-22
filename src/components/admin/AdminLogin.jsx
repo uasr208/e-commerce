@@ -1,26 +1,33 @@
+import { useFormik } from "formik";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import * as Yup from "yup";
+
+const schema = Yup.object({
+  email: Yup.string()
+    .required("Email field is required")
+    .email("please enter a valid email"),
+  password: Yup.string()
+    .required("Password filed is required")
+    .min(6, "Minimum 6 characters required")
+    .matches(/[A-Z]/, "Atleast one uppercase required")
+    .matches(/[a-z]/, "Atleast one lowercase required")
+    .matches(/[0-9]/, "Atleast one number required")
+    .matches(/[^A-Za-z0-9]/, "Atleast one special character required"),
+});
 
 const AdminLogin = () => {
-  const [user, setUser] = useState({
-    email: "",
-    password: "",
+  const login = (values) => {
+    console.log(values);
+  };
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: schema,
+    onSubmit: login,
   });
-
-  const handleChange = (e) => {
-    const input = e.target;
-    const key = input.name;
-    const value = input.value.trim();
-    setUser({
-      ...user,
-      [key]: value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(user);
-  };
 
   return (
     <div className="overflow-hidden bg-[#F8F7F4] h-screen flex items-center justify-center animate__animated animate__fadeIn animate__slower">
@@ -32,33 +39,37 @@ const AdminLogin = () => {
         />
         <div className="flex flex-col justify-center px-10 gap-6">
           <h1 className="text-2xl font-semibold text-gray-600">Admin Panel</h1>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
             <div className="flex flex-col gap-1">
               <label className="text-zinc-700 font-medium">Email</label>
               <input
-                onChange={handleChange}
+                onChange={formik.handleChange}
                 name="email"
                 type="email"
                 placeholder="example@mail.com"
                 className="border border-gray-200 rounded p-2"
               />
-              <small className="text-rose-500 font-semibold">
-                This is an error
-              </small>
+              {formik.errors.email && (
+                <small className="text-rose-500 font-semibold">
+                  {formik.errors.email}
+                </small>
+              )}
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-zinc-700 font-medium">Password</label>
               <input
-                onChange={handleChange}
+                onChange={formik.handleChange}
                 name="password"
                 type="password"
                 placeholder="***********"
                 className="border border-gray-200 rounded p-2"
               />
-              <small className="text-rose-500 font-semibold">
-                This is an error
-              </small>
+              {formik.errors.password && (
+                <small className="text-rose-500 font-semibold">
+                  {formik.errors.password}
+                </small>
+              )}
             </div>
             <button className="p-2.5 rounded bg-[#27BE8C] text-white font-medium hover:bg-green-500 active:scale-80 duration-300">
               Login
