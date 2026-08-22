@@ -2,7 +2,7 @@ import { useFormik } from "formik";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
-import { useAuth } from "../../zustand/useAuth";
+import { useAuth } from "../zustand/useAuth";
 
 const schema = Yup.object({
   email: Yup.string()
@@ -17,7 +17,7 @@ const schema = Yup.object({
     .matches(/[^A-Za-z0-9]/, "Atleast one special character required"),
 });
 
-const AdminLogin = () => {
+const Login = () => {
   const { login } = useAuth();
   const formik = useFormik({
     initialValues: {
@@ -94,4 +94,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default Login;
