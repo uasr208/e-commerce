@@ -2,11 +2,12 @@ const env = import.meta.env;
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../zustand/useAuth";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 axios.defaults.baseURL = env.VITE_SERVER_URL;
 const AuthGuard = () => {
+  const location = useLocation();
   const [isLogin, setLogin] = useState(null);
   const { user } = useAuth();
 
@@ -34,8 +35,12 @@ const AuthGuard = () => {
       </div>
     );
 
-  if (isLogin === false) return <Navigate to="/login" />;
+  if (isLogin === false) {
+    if (location.pathname === "/login") return <Outlet />;
+    else <Navigate to="/login" />;
+  }
 
+  if (location.pathname === "/login") return <Navigate to="/admin/dashboard" />;
   return <Outlet />;
 };
 
