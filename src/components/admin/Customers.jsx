@@ -50,6 +50,11 @@ const Customers = () => {
 
   const columns = [
     {
+      key: "sn",
+      title: "SN",
+      render: (item1, item2, index) => index + 1,
+    },
+    {
       key: "customersName",
       title: "Customer's name",
       render: (item) => <label className="capitalize">{item.fullname}</label>,

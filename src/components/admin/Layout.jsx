@@ -12,12 +12,13 @@ import {
   User,
 } from "lucide-react";
 import React, { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../zustand/useAuth";
 
 const Layout = () => {
   const [space, setSpace] = useState(270);
   const { logout } = useAuth();
+  const location = useLocation();
 
   const accountMenu = [
     {
@@ -86,7 +87,9 @@ const Layout = () => {
         <div className="flex flex-col w-full px-6 flex-1 gap-1">
           {menus.map((item, index) => (
             <Link key={index} to={item.href}>
-              <button className="py-2 rounded w-full duration-300 px-2 w-full flex items-center gap-3 text-gray-500 hover:text-gray-800 hover:bg-gray-100 font-medium">
+              <button
+                className={`py-2 rounded w-full duration-300 px-2 w-full flex items-center gap-3 text-gray-500 hover:text-gray-800 hover:bg-gray-100 font-medium ${item.href === location.pathname ? "bg-gray-200" : "bg-white"}`}
+              >
                 {item.icon}
                 {item.label}
               </button>
@@ -131,7 +134,15 @@ const Layout = () => {
             </Dropdown>
           </div>
         </nav>
-        <div className="px-12 py-8">
+        <div className="px-12 py-8 space-y-8">
+          <div className="flex gap-3">
+            <button className="w-10 h-10 rounded-full flex items-center justify-center text-white bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500">
+              {menus.find((menu) => menu.href === location.pathname).icon}
+            </button>
+            <h1 className="text-3xl font-bold capitalize ">
+              {location.pathname.split("/").pop()}
+            </h1>
+          </div>
           <Outlet />
         </div>
       </section>
