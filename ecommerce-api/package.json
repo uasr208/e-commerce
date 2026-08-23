@@ -19,7 +19,9 @@
 		"inquirer": "latest",
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "latest",
-		"morgan": "latest"
+		"morgan": "latest",
+		"stripe": "^20.0.0",
+		"uuid": "^13.0.0"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^6.0.0",

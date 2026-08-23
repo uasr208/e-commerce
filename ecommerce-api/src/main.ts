@@ -18,6 +18,10 @@ app.listen(ENV.PORT, () => console.log(`Server is running on http://localhost:${
 
 import cors from 'cors'
 import { userRouter } from './users/users.router'
+import { productRouter } from './products/products.router'
+import { cartRouter } from './carts/cart.router'
+import { orderRouter } from './orders/order.router'
+import { checkoutRouter } from './checkout/checkout.router'
 app.use(cors({
 	origin: '*'
 }))
@@ -36,6 +40,10 @@ app.get("/", (req: Request, res: Response) => {
 
 
 app.use("/auth", userRouter)
+app.use("/products", productRouter)
+app.use("/cart", cartRouter)
+app.use("/checkout", checkoutRouter)
+app.use("/orders", orderRouter)
 
 app.use((req: Request, res: Response) => {
 	res.status(404).json({ message: `${req.url} not found` })
