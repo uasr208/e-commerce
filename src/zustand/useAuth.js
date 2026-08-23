@@ -9,6 +9,18 @@ export const useAuth = create(
   persist(
     (set) => ({
       user: null,
+      signup: async (values) => {
+        try {
+          const { data } = await axios.post("/auth/signup", values);
+          set({ user: data });
+          toast.success("Account created start your shopping now");
+          setTimeout(() => {
+            window.location.replace("/");
+          }, 2000);
+        } catch (error) {
+          toast.error(err.response.data.message);
+        }
+      },
       login: async (values) => {
         try {
           const res = await axios.post("/auth/login", values);
@@ -17,7 +29,9 @@ export const useAuth = create(
             user: res.data,
           });
           setTimeout(() => {
-            window.location.replace("/admin/dashboard");
+            if (res.data.role === "/admin")
+              window.location.replace("/admin/dashboard");
+            else window.location.replace("/");
           }, 2000);
           return;
         } catch (err) {
@@ -31,6 +45,9 @@ export const useAuth = create(
         return set({
           user: null,
         });
+        setTimeout(() => {
+          window.location.replace("/login");
+        }, 2000);
       },
     }),
     { name: "auth" },

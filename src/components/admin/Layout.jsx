@@ -13,9 +13,11 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
+import { useAuth } from "../../zustand/useAuth";
 
 const Layout = () => {
   const [space, setSpace] = useState(270);
+  const { logout } = useAuth();
 
   const accountMenu = [
     {
@@ -89,7 +91,10 @@ const Layout = () => {
         </div>
 
         <div className="flex items-center gap-2 justify-center py-5.5 px-6">
-          <button className="gap-2 flex items-center w-full bg-rose-500 font-medium hover:scale-105 active:scale-80 duration-300 text-white justify-center py-2.5 rounded-lg">
+          <button
+            onClick={logout}
+            className="gap-2 flex items-center w-full bg-rose-500 font-medium hover:scale-105 active:scale-80 duration-300 text-white justify-center py-2.5 rounded-lg"
+          >
             <LogOut className="w-4 h-4" />
             Logout
           </button>

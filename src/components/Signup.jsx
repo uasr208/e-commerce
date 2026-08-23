@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { useAuth } from "../zustand/useAuth";
 
 const schema = Yup.object({
+  fullname: Yup.string().required("Fullname is required"),
   email: Yup.string()
     .required("Email field is required")
     .email("please enter a valid email"),
@@ -17,15 +18,15 @@ const schema = Yup.object({
     .matches(/[^A-Za-z0-9]/, "Atleast one special character required"),
 });
 
-const Login = () => {
-  const { login } = useAuth();
+const Signup = () => {
+  const { signUp } = useAuth();
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
     },
     validationSchema: schema,
-    onSubmit: login,
+    onSubmit: Signup,
   });
 
   return (
@@ -37,8 +38,26 @@ const Login = () => {
           className="rounded-l-lg"
         />
         <div className="flex flex-col justify-center px-10 gap-6">
-          <h1 className="text-2xl font-semibold text-gray-600">Sign in</h1>
+          <h1 className="text-2xl font-semibold text-gray-600">
+            Create an account
+          </h1>
           <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
+            <div className="flex flex-col gap-1">
+              <label className="text-zinc-700 font-medium">Fullname</label>
+              <input
+                onChange={formik.handleChange}
+                name="fullname"
+                type="email"
+                placeholder="Enter your full Name here"
+                className="border border-gray-200 rounded p-2"
+              />
+              {formik.errors.fullname && (
+                <small className="text-rose-500 font-semibold">
+                  {formik.errors.fullname}
+                </small>
+              )}
+            </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-zinc-700 font-medium">Email</label>
               <input
@@ -71,10 +90,10 @@ const Login = () => {
               )}
             </div>
             <button className="p-2.5 rounded bg-[#27BE8C] text-white font-medium hover:bg-green-500 active:scale-80 duration-300">
-              Login
+              Sign up
             </button>
           </form>
-          <div className="flex flex-col gap-2 ">
+          <div className="flex flex-col gap-2">
             <Link
               to="#"
               className="text-[#27BE8C]  font-medium hover:underline"
@@ -82,10 +101,10 @@ const Login = () => {
               Forgot password
             </Link>
             <Link
-              to="/signup"
+              to="/login"
               className="text-[#27BE8C]  font-medium hover:underline"
             >
-              Create account
+              Signin now
             </Link>
           </div>
         </div>
@@ -94,4 +113,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

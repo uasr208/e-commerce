@@ -37,10 +37,12 @@ const AuthGuard = () => {
 
   if (isLogin === false) {
     if (location.pathname === "/login") return <Outlet />;
-    else <Navigate to="/login" />;
+    else return <Navigate to="/login" />;
   }
 
-  if (location.pathname === "/login") return <Navigate to="/admin/dashboard" />;
+  if (location.pathname === "/login")
+    if (user.role === "admin") return <Navigate to="/admin/dashboard" />;
+    else return <Navigate to="/" />;
   return <Outlet />;
 };
 

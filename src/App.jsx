@@ -12,6 +12,7 @@ import Orders from "./components/admin/Orders";
 import Products from "./components/admin/Products";
 import Settings from "./components/admin/Settings";
 import NotFound from "./components/NotFound";
+import Signup from "./components/Signup";
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
+        <Route path="/signup" element={<Signup />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ToastContainer />
