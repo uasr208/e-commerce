@@ -9,13 +9,16 @@ axios.defaults.baseURL = env.VITE_SERVER_URL;
 const AuthGuard = () => {
   const location = useLocation();
   const [isLogin, setLogin] = useState(null);
+  const [role, setRole] = useState(null);
   const { user } = useAuth();
 
   const checkToken = async (token) => {
     try {
-      await axios.post("/auth/verify", { token });
+      const { data } = await axios.post("/auth/verify", { token });
+      setRole(data.role);
       setLogin(true);
     } catch (err) {
+      setRole(null);
       setLogin(false);
       console.log(err);
     }
@@ -28,7 +31,7 @@ const AuthGuard = () => {
       setLogin(false);
     }
   }, [user]);
-  if (isLogin === null)
+  if (isLogin === null && role === null)
     return (
       <div className="bg-gray-100 h-screen flex items-center justify-center animate__animated animate__fadeIn">
         <Loader2 className="animate-spin w-16 h-16 text-indigo-600" />
@@ -43,7 +46,14 @@ const AuthGuard = () => {
   if (location.pathname === "/login")
     if (user.role === "admin") return <Navigate to="/admin/dashboard" />;
     else return <Navigate to="/" />;
-  return <Outlet />;
+
+  if (location.pathname.startsWith("/admin") && role === "admin")
+    return <Outlet />;
+  if (location.pathname.startsWith("/users") && role === "user")
+    return <Outlet />;
+  if (role === "user") return <Navigate to="/users/carts" />;
+
+  if (role === "admin") return <Navigate to="/admin/dashboard" />;
 };
 
 export default AuthGuard;

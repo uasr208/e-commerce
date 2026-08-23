@@ -1,5 +1,4 @@
 import { useFormik } from "formik";
-import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import { useAuth } from "../zustand/useAuth";
@@ -19,14 +18,15 @@ const schema = Yup.object({
 });
 
 const Signup = () => {
-  const { signUp } = useAuth();
+  const { signup } = useAuth();
   const formik = useFormik({
     initialValues: {
+      fullname: "",
       email: "",
       password: "",
     },
     validationSchema: schema,
-    onSubmit: Signup,
+    onSubmit: signup,
   });
 
   return (
@@ -47,7 +47,6 @@ const Signup = () => {
               <input
                 onChange={formik.handleChange}
                 name="fullname"
-                type="email"
                 placeholder="Enter your full Name here"
                 className="border border-gray-200 rounded p-2"
               />

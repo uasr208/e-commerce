@@ -17,8 +17,8 @@ export const useAuth = create(
           setTimeout(() => {
             window.location.replace("/");
           }, 2000);
-        } catch (error) {
-          toast.error(err.response.data.message);
+        } catch (err) {
+          toast.error(err.response?.data?.message || "Signup failed");
         }
       },
       login: async (values) => {
@@ -29,7 +29,7 @@ export const useAuth = create(
             user: res.data,
           });
           setTimeout(() => {
-            if (res.data.role === "/admin")
+            if (res.data.role === "admin")
               window.location.replace("/admin/dashboard");
             else window.location.replace("/");
           }, 2000);
@@ -45,9 +45,6 @@ export const useAuth = create(
         return set({
           user: null,
         });
-        setTimeout(() => {
-          window.location.replace("/login");
-        }, 2000);
       },
     }),
     { name: "auth" },

@@ -15,18 +15,13 @@ import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../../zustand/useAuth";
 
-const Layout = () => {
+const UserLayout = () => {
   const [space, setSpace] = useState(270);
   const { logout } = useAuth();
 
   const accountMenu = [
     {
-      label: <Link to="/admin/dashboard">Dashboard</Link>,
-      key: "dashboard",
-      icon: <LayoutDashboard className="w-4 h-4" />,
-    },
-    {
-      label: <Link to="/admin/settings">Settings</Link>,
+      label: <Link to="/users/settings">Settings</Link>,
       key: "settings",
       icon: <Settings2 className="w-4 h-4" />,
     },
@@ -43,28 +38,20 @@ const Layout = () => {
 
   const menus = [
     {
-      label: "Dashboard",
-      href: "/admin/dashboard",
-      icon: <Axis3D className="w-4 h-4" />,
+      label: "Carts",
+      href: "/users/carts",
+      icon: <ShoppingCart className="w-4 h-4" />,
     },
-    {
-      label: "Customers",
-      href: "/admin/customers",
-      icon: <User className="w-4 h-4" />,
-    },
+
     {
       label: "Orders",
-      href: "/admin/orders",
+      href: "/users/orders",
       icon: <ListOrdered className="w-4 h-4" />,
     },
-    {
-      label: "Products",
-      href: "/admin/products",
-      icon: <ShoppingBag className="w-4 h-4" />,
-    },
+
     {
       label: "Settings",
-      href: "/admin/settings",
+      href: "/users/settings",
       icon: <Settings2 className="w-4 h-4" />,
     },
   ];
@@ -139,4 +126,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default UserLayout;
