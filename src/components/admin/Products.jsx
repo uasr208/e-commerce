@@ -9,9 +9,13 @@ import {
   Tag,
   Tooltip,
 } from "antd";
+import axios from "axios";
 
 import { Edit2, Plus, Search, Trash2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { httpRequest } from "../../lib/http-request";
+import { priceCalculator } from "../../lib/price-calculator";
+import { toast } from "react-toastify";
 
 const categories = [
   "Electronics",
@@ -39,15 +43,64 @@ const categories = [
 const Products = () => {
   const [open, setOpen] = useState(false);
   const [productForm] = Form.useForm();
+  const [products, setProducts] = useState([]);
+  const [updateCount, setUpdateCount] = useState(0);
+  const [editId, setEditId] = useState(null);
   const handleClose = () => {
+    setEditId(null);
     productForm.resetFields();
     setOpen(false);
   };
 
-  const createProduct = (values) => {
-    console.log(values);
-    handleClose();
+  const createProduct = async (values) => {
+    try {
+      const { data } = await httpRequest.post("/products", values);
+
+      setUpdateCount(updateCount + 1);
+      handleClose();
+    } catch (err) {
+      toast.error(err.response.data.message);
+    }
   };
+
+  const fetchProducts = async () => {
+    try {
+      const { data } = await httpRequest.get("/products");
+      setProducts(data);
+    } catch (error) {
+      toast.error(err.response.data.message);
+    }
+  };
+
+  const deleteProduct = async (id) => {
+    try {
+      await httpRequest.delete(`/products/${id}`);
+      setUpdateCount(updateCount + 1);
+      toast.success("Product deleted");
+    } catch (err) {
+      toast.error(err.response.data.message);
+    }
+  };
+
+  const editProduct = (item) => {
+    setEditId(item._id);
+    productForm.setFieldsValue(item);
+    setOpen(true);
+  };
+
+  const saveProduct = async (values) => {
+    try {
+      await httpRequest.put(`/products/${editId}`, values);
+      handleClose();
+      setUpdateCount(updateCount + 1);
+    } catch (err) {
+      toast.error(err.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [updateCount]);
   return (
     <div className="grid grid-cols-4 gap-6">
       <div className="col-span-4 flex justify-between items-center">
@@ -68,54 +121,57 @@ const Products = () => {
           Add Product
         </Button>
       </div>
-      {Array(24)
-        .fill(0)
-        .map((item, index) => (
-          <Card
-            className="bg-pink-700"
-            key={index}
-            hoverable
-            cover={
-              <img
-                src="/images/product-placeholder.jpg"
-                className="h-60 object-cover"
-              />
-            }
-          >
-            <Card.Meta
-              title="NEWLY LAUNCHED RED SHIRT"
-              description={
-                <div className="flex items-center gap-2">
-                  <label className="font-medium text-gray-600">2000</label>
-                  <del className="text-rose-500">4000</del>
-                  <label>(50% Discount)</label>
-                </div>
-              }
+      {products.map((item, index) => (
+        <Card
+          className="bg-pink-700"
+          key={index}
+          hoverable
+          cover={
+            <img
+              src="/images/product-placeholder.jpg"
+              className="h-60 object-cover"
             />
-            <Tag className="!mt-3">Men's Clothing</Tag>
-            <div className="mt-4 space-x-3">
-              <Tooltip title="Edit product">
+          }
+        >
+          <Card.Meta
+            title={item.title}
+            description={
+              <div className="flex items-center gap-2">
+                <label className="font-medium text-gray-600">
+                  ₹{priceCalculator(item.price, item.discount)}
+                </label>
+                <del className="text-rose-500">
+                  ₹{item.price.toLocaleString()}
+                </del>
+                <label>({item.discount}% Discount)</label>
+              </div>
+            }
+          />
+          <Tag className="!mt-3">Men's Clothing</Tag>
+          <div className="mt-4 space-x-3">
+            <Tooltip title="Edit product">
+              <Button
+                icon={<Edit2 className="w-4 h-4" />}
+                type="primary"
+                className="!bg-indigo-500"
+                onClick={() => editProduct(item)}
+              />
+            </Tooltip>
+            <Tooltip title="Delete product">
+              <Popconfirm
+                title="Do you want to delete this product?"
+                onConfirm={() => deleteProduct(item._id)}
+              >
                 <Button
-                  icon={<Edit2 className="w-4 h-4" />}
+                  icon={<Trash2 className="w-4 h-4" />}
                   type="primary"
-                  className="!bg-indigo-500"
+                  danger
                 />
-              </Tooltip>
-              <Tooltip title="Delete product">
-                <Popconfirm
-                  title="Do you want to delete this product?"
-                  onConfirm={() => alert()}
-                >
-                  <Button
-                    icon={<Trash2 className="w-4 h-4" />}
-                    type="primary"
-                    danger
-                  />
-                </Popconfirm>
-              </Tooltip>
-            </div>
-          </Card>
-        ))}
+              </Popconfirm>
+            </Tooltip>
+          </div>
+        </Card>
+      ))}
       <Modal
         width={600}
         centered
@@ -127,7 +183,7 @@ const Products = () => {
         <Form
           layout="vertical"
           className="!mt-4"
-          onFinish={createProduct}
+          onFinish={editId ? saveProduct : createProduct}
           form={productForm}
         >
           <Form.Item
@@ -161,7 +217,7 @@ const Products = () => {
           <Form.Item
             label={<label className="text-base text-gray-500">Category</label>}
             rules={[{ required: true }]}
-            name="Category"
+            name="category"
           >
             <Select size="large" placeholder="Choose category" showSearch>
               {categories.map((item, index) => (
@@ -188,9 +244,15 @@ const Products = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" size="large" htmlType="submit">
-              Submit
-            </Button>
+            {editId ? (
+              <Button type="primary" size="large" danger htmlType="submit">
+                Save
+              </Button>
+            ) : (
+              <Button type="primary" size="large" htmlType="submit">
+                Submit
+              </Button>
+            )}
             <Button
               onClick={handleClose}
               type="primary"

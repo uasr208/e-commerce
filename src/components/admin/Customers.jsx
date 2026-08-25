@@ -1,12 +1,11 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../zustand/useAuth";
 import { Select, Table } from "antd";
 import { Loader2 } from "lucide-react";
 import moment from "moment";
 import { toast } from "react-toastify";
+import { httpRequest } from "../../lib/http-request";
 
-axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL;
 const Customers = () => {
   const { user } = useAuth();
   const [isLoading, setLoading] = useState(false);
@@ -15,12 +14,7 @@ const Customers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const option = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-      const { data } = await axios.get("/auth/users", option);
+      const { data } = await httpRequest.get("/auth/users");
       setCustomers(data);
       console.log(data);
     } catch (err) {
@@ -32,12 +26,9 @@ const Customers = () => {
 
   const changeRole = async (role, id) => {
     try {
-      const option = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-      const { data } = await axios.put(`/auth/users/${id}`, { role: role });
+      const { data } = await httpRequest.put(`/auth/users/${id}`, {
+        role: role,
+      });
       toast.success(data.message);
     } catch (err) {
       toast.error(err.response.data.message);
