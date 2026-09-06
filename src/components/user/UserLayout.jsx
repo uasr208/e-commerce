@@ -14,10 +14,15 @@ import {
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../../zustand/useAuth";
+import useSWR from "swr";
+import { fetcher } from "../../lib/fetcher";
 
 const UserLayout = () => {
   const [space, setSpace] = useState(270);
   const { logout } = useAuth();
+  const { data: carts } = useSWR("/cart", fetcher, {
+    revalidateOnFocus: false,
+  });
 
   const accountMenu = [
     {
@@ -107,7 +112,7 @@ const UserLayout = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <Badge count={8}>
+            <Badge count={carts?.length ?? 0}>
               <Bell className="w-5 h-5 text-gray-500" />
             </Badge>
             <Dropdown menu={{ items: accountMenu }}>

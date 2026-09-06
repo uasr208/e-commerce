@@ -18,12 +18,15 @@ import UserLayout from "./components/user/UserLayout";
 import UserCarts from "./components/user/UserCarts";
 import UserOrders from "./components/user/UserOrders";
 import UserSettings from "./components/user/UserSettings";
-
+import MainLayout from "./components/Layout";
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+
         <Route element={<AuthGuard />}>
           <Route path="login" element={<Login />} />
 

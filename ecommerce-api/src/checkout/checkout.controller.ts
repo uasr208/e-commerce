@@ -17,6 +17,31 @@ function calculateAmount(items: any[]) {
   }, 0)
 }
 
+async function finalizePayment(metadata: any) {
+  if (!metadata?.sessionId || !metadata?.userId || !metadata?.products)
+    return false
+
+  const products = JSON.parse(metadata.products)
+  const ids = products.map((item: any) =>
+    mongoose.Types.ObjectId.createFromHexString(item.id)
+  )
+
+  const order = await Order.findOneAndUpdate(
+    { sessionId: metadata.sessionId, paymentStatus: "unpaid" },
+    { paymentStatus: "paid" }
+  )
+
+  if (!order)
+    return false
+
+  await Cart.deleteMany({
+    user: metadata.userId,
+    product: { $in: ids }
+  })
+
+  return true
+}
+
 export const createCheckout = async (req: AuthRequest, res: Response) => {
   try {
     const payloadProducts = req.body.products
@@ -67,13 +92,18 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
         }
       ],
       payment_intent_data: {
-          metadata : {
-            userId: req.user?.id || "",
-            sessionId,
-            products: JSON.stringify(payloadProducts)
-          }
+        metadata: {
+          userId: req.user?.id || "",
+          sessionId,
+          products: JSON.stringify(payloadProducts)
+        }
       },
-      success_url: process.env.PAYMENT_SUCCESS_URL!,
+      metadata: {
+        userId: req.user?.id || "",
+        sessionId,
+        products: JSON.stringify(payloadProducts)
+      },
+      success_url: `${process.env.PAYMENT_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: process.env.PAYMENT_FAILED_URL!
     })
 
@@ -92,26 +122,41 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
   }
 }
 
+export const confirmCheckout = async (req: AuthRequest, res: Response) => {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(req.params.id)
+
+    if (session.payment_status !== "paid")
+      return res.status(400).json({ message: "Payment is not completed" })
+
+    if (session.metadata?.userId !== req.user?.id)
+      return res.status(403).json({ message: "Unauthorized payment session" })
+
+    const placed = await finalizePayment(session.metadata)
+    res.json({ message: placed ? "Order placed" : "Order already processed" })
+  }
+  catch (err) {
+    if (err instanceof Error) res.status(500).json({ message: err.message })
+  }
+}
+
 export const webhook = async (req: Request, res: Response) => {
   try {
     fs.writeFileSync("test.json", JSON.stringify(req.body, null, 2))
+    const eventType = req.body.type
     const status = req.body.data.object.status
     const metadata = req.body.data.object.metadata
-    const products = JSON.parse(metadata.products)
-    const ids = products.map((item: any)=> mongoose.Types.ObjectId.createFromHexString(item.id))
+
+    if (!metadata?.sessionId || !metadata?.userId || !metadata?.products)
+      return res.json({ message: "Event ignored" })
+
+    if (eventType !== "charge.succeeded" && eventType !== "payment_intent.succeeded")
+      return res.json({ message: "Event ignored" })
 
     if(status !== "succeeded")
       throw new Error("Payment not succeeded yet")
-    
-    const session = await Order.findOneAndUpdate({sessionId: metadata.sessionId}, {paymentStatus: "paid"})
 
-    if(!session)
-      throw new Error("Session not found")
-
-    await Cart.deleteMany({
-      user: metadata.userId,
-      product: { $in: ids }
-    })
+    await finalizePayment(metadata)
 
     res.json({message: "Order placed"})
   } 

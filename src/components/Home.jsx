@@ -1,6 +1,6 @@
 import React from "react";
 import { fetcher } from "../lib/fetcher";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import Loader from "./shared/Loader";
 import Error from "./shared/Error";
 import { Button, Card, Tag } from "antd";
@@ -23,7 +23,8 @@ const Home = () => {
         return;
       }
       const { data } = await httpRequest.post("/cart", { product: id });
-      toast.success(data.message);
+      mutate("/cart");
+      toast.success(data.message, { position: "top-center" });
     } catch (err) {
       toast.error(err.response.data.message);
     }
